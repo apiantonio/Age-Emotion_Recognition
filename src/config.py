@@ -3,7 +3,6 @@ import torch
 from pathlib import Path
 from datetime import datetime
 
-
 UTKFACE_PATH = './data/utkface/UTKFace'  # Assicurati che il path sia corretto
 FER_ROOT_PATH = './data/fer2013'         # Root che contiene 'train' e 'test' (o sottocartelle classi)
 BATCH_SIZE = 128
@@ -23,6 +22,26 @@ AGE_VAL_CSV   = os.path.join(METADATA_DIR, 'val_age.csv')
 
 RESIZE_SIZE = 384
 CROP_SIZE = 384
+
+# Configurazione modelli e checkpoint
+MODELS_CONFIG = {
+    'emotion': {
+        'model_name': 'convnext_tiny',
+        'checkpoint': 'checkpoints/emotion_best/best_model.pth', 
+        'num_classes': 7,
+        'resize': 236,
+        'crop': 224,
+        'labels': ['Angry', 'Disgust', 'Fear', 'Happy', 'Neutral', 'Sad', 'Surprise']
+    },
+    'age': {
+        'model_name': 'efficientnet_v2_s',
+        'checkpoint': 'checkpoints/age_best/best_model.pth',   
+        'num_classes': 1,
+        'resize': 384,
+        'crop': 384,
+        'labels': None 
+    }
+}
 
 
 class TrainingConfig:

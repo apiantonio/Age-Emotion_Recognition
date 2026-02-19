@@ -15,30 +15,11 @@ from src.face_stabilizer import *
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 
-MODELS_CONFIG = {
-    'emotion': {
-        'model_name': 'convnext_tiny',
-        'checkpoint': 'checkpoints/emotion_best/best_model.pth', 
-        'num_classes': 7,
-        'resize': 236,
-        'crop': 224,
-        'labels': ['Angry', 'Disgust', 'Fear', 'Happy', 'Neutral', 'Sad', 'Surprise']
-    },
-    'age': {
-        'model_name': 'efficientnet_v2_s',
-        'checkpoint': 'checkpoints/age_best/best_model.pth',   
-        'num_classes': 1,
-        'resize': 384,
-        'crop': 384,
-        'labels': None 
-    }
-}
-
 # Impostazioni Webcam
 WEBCAM_ID = 0
 FRAME_WIDTH = 1080
 FRAME_HEIGHT = 720
-STABILITY_FACTOR = 0.1  # (0.1 molto stabile, 0.5 medio)
+STABILITY_FACTOR = 0.01  # (0.1 molto stabile, 0.5 medio)
 FRAME_SKIP = 2 # processa 1 frame ogni skip+1 (es. 4 = processa 1 frame ogni 5)
 MIN_FACE_SIZE = 80
 USE_FP16 = True
