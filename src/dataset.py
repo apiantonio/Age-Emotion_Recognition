@@ -84,7 +84,7 @@ def process_emotion_data(root_dir):
     - Se trova le cartelle 'train' e 'test', usa quello split (EVITA DATA LEAKAGE).
     - Altrimenti, scansiona tutto e fa uno split casuale.
     """
-    print(f"🔄 Scansione Dataset Emozioni in: {root_dir}")
+    print(f"Scansione Dataset Emozioni in: {root_dir}")
 
     # Definizione percorsi standard FER2013
     train_dir = os.path.join(root_dir, 'train')
@@ -205,13 +205,13 @@ def get_dataloaders(task, batch_size=BATCH_SIZE):
     if task == 'emotion':
         # Gestione Emozioni
         if os.path.exists(EMO_TRAIN_CSV) and os.path.exists(EMO_META_PT):
-            print("📂 Caricamento split Emozioni esistenti...")
+            print("Caricamento split Emozioni esistenti...")
             train_df = pd.read_csv(EMO_TRAIN_CSV)
             val_df = pd.read_csv(EMO_VAL_CSV)
-            meta = torch.load(EMO_META_PT)
+            meta = torch.load(EMO_META_PT, weights_only=False)
             weights = meta['weights']
         else:
-            print("⚙️ Creazione nuovi split Emozioni...")
+            print("Creazione nuovi split Emozioni...")
             train_df, val_df, weights, class_map = process_emotion_data(FER_ROOT_PATH)
             train_df.to_csv(EMO_TRAIN_CSV, index=False)
             val_df.to_csv(EMO_VAL_CSV, index=False)
