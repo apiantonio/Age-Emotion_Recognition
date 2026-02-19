@@ -44,21 +44,21 @@ The system utilizes two distinct State-of-the-Art lightweight architectures, eac
 
 ```text
 .
-├── checkpoints/              # Directory for saved model weights (.pth) - *Ignored in Git*
-├── metadata_splits/          # CSV mapping files for Train/Validation splits
+├── checkpoints/                # Directory for saved model weights (.pth) - *Ignored in Git*
+├── metadata_splits/            # CSV mapping files for Train/Validation splits
 ├── notebooks/                
-│   ├── data_exploration.ipynb # EDA on datasets
-│   └── model_eval.ipynb       # Confusion matrices, classification reports, and scatter plots
-├── src/                      # Core Source Code
-│   ├── config.py             # Global hyperparameters and path definitions
-│   ├── dataset.py            # PyTorch Datasets and transformations
-│   ├── face_stabilizer.py    # Temporal smoothing logic (EMA) for age predictions
-│   ├── model.py              # Model instantiation (ConvNeXt, EfficientNet)
-│   └── trainer.py            # Training loops, loss functions, and metrics tracking
-├── demo.py                   # MAIN SCRIPT: Real-time webcam inference
-├── train.py                  # CLI script to train models from scratch
-├── .gitignore                # Git ignore rules for large files
-└── README.md                 # Project documentation
+│   ├── data_exploration.ipynb  # EDA on datasets
+│   └── model_eval.ipynb        # Confusion matrices, classification reports, and scatter plots
+├── src/                        # Core Source Code
+│   ├── config.py               # Global hyperparameters and path definitions
+│   ├── dataset.py              # PyTorch Datasets and transformations
+│   ├── face_stabilizer.py      # Temporal smoothing logic (EMA) for age predictions
+│   ├── model.py                # Model instantiation (ConvNeXt, EfficientNet)
+│   └── trainer.py              # Training loops, loss functions, and metrics tracking
+├── demo.py                     # MAIN SCRIPT: Real-time webcam inference
+├── train.py                    # CLI script to train models from scratch
+├── .gitignore                  # Git ignore rules for large files
+└── README.md                   # Project documentation
 
 ```
 
@@ -69,7 +69,7 @@ The system utilizes two distinct State-of-the-Art lightweight architectures, eac
 ### 1. Clone the Repository
 
 ```bash
-git clone [https://github.com/apiantonio/Age-Emotion_Recognition](https://github.com/apiantonio/Age-Emotion_Recognition)
+git clone https://github.com/apiantonio/Age-Emotion_Recognition
 cd age-emotion_recognition
 
 ```
@@ -89,13 +89,13 @@ conda activate facesight
 Make sure you have PyTorch installed with CUDA support (if you have an NVIDIA GPU). Then install the required packages:
 
 ```bash
-pip install torch torchvision torchaudio --index-url [https://download.pytorch.org/whl/cu118](https://download.pytorch.org/whl/cu118)
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 pip install opencv-python facenet-pytorch pandas numpy matplotlib seaborn scikit-learn tqdm
 
 ```
 
 ### 4. Download Pre-Trained Weights
-Because model checkpoints (`.pth` files) are too large to be stored directly in the Git repository, they are hosted in the **GitHub Releases** section.
+Model checkpoints (`.pth` files) are hosted in the **GitHub Releases** section.
 
 1. Go to the [Releases page](../../releases/latest) of this repository.
 2. Download the pre-trained model weights (e.g., the `.pth` files under "Assets").
