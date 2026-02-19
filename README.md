@@ -60,7 +60,6 @@ The system utilizes two state-of-the-art lightweight architectures. The followin
 ├── train.py                    # CLI script for model training
 ├── .gitignore                  # Git ignore rules
 └── README.md                   # Project documentation
-
 ```
 
 ---
@@ -72,7 +71,6 @@ The system utilizes two state-of-the-art lightweight architectures. The followin
 ```bash
 git clone https://github.com/apiantonio/Age-Emotion_Recognition
 cd age-emotion_recognition
-
 ```
 
 ### 2. Environment Configuration
@@ -82,7 +80,6 @@ It is highly recommended to use an isolated environment (e.g., Conda):
 ```bash
 conda create -n facesight python=3.10
 conda activate facesight
-
 ```
 
 ### 3. Install Dependencies
@@ -92,7 +89,6 @@ Ensure PyTorch is installed with the appropriate CUDA tooling for your hardware.
 ```bash
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 pip install opencv-python facenet-pytorch pandas numpy matplotlib seaborn scikit-learn tqdm
-
 ```
 
 ### 4. Download Pre-Trained Weights
@@ -108,7 +104,6 @@ checkpoints/
 │   └── best_model.pth
 └── age_best/
     └── best_model.pth
-
 ```
 
 
