@@ -40,7 +40,6 @@ class FaceModel(nn.Module):
             self.backbone.fc = nn.Identity()
                    
         elif model_name == 'efficientnet_b0':
-            # 🏆 CONSIGLIATO PER WEBCAM
             weights = models.EfficientNet_B0_Weights.DEFAULT if pretrained else None
             self.backbone = models.efficientnet_b0(weights=weights)
             in_features = self.backbone.classifier[1].in_features # 1280
@@ -62,7 +61,6 @@ class FaceModel(nn.Module):
             self.backbone.classifier = nn.Identity()
             
         elif model_name == 'mobilenet_v3_large':
-            # CONSIGLIATO PER CPU PURE
             weights = models.MobileNet_V3_Large_Weights.DEFAULT if pretrained else None
             self.backbone = models.mobilenet_v3_large(weights=weights)
             in_features = self.backbone.classifier[0].in_features # 960
