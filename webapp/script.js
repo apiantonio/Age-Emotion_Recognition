@@ -16,15 +16,19 @@ async function initSystem() {
     try {
         info.innerText = "Caricamento... ⏳";
         
+        // cores optimized for mobile devices
+        const numCores = navigator.hardwareConcurrency || 4;
+        ort.env.wasm.numThreads = Math.min(numCores, 4);
+        
         const ortOptions = { 
-            executionProviders: ['wasm'], // ['webgl', 'wasm'] per provare WebGL prima di WASM
+            executionProviders: ['webgl', 'wasm'], // provare WebGL prima di WASM
             graphOptimizationLevel: 'all'
         };
         sessionEmo = await ort.InferenceSession.create('https://huggingface.co/datasets/apiantonio/facesight-models/resolve/main/emotion.onnx?download=true', ortOptions);
         sessionAge = await ort.InferenceSession.create('https://huggingface.co/datasets/apiantonio/facesight-models/resolve/main/age.onnx?download=true', ortOptions);
         
-        await faceapi.nets.ssdMobilenetv1.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/');
-        // await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/');
+        // await faceapi.nets.ssdMobilenetv1.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/');
+        await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/');
         
         info.innerText = "✅ Sistema pronto!";
         startWebcam();
@@ -89,8 +93,8 @@ async function processFrame() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
                 // face-api
-                const detections = await faceapi.detectAllFaces(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }));
-                // const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.6 }));   
+                // const detections = await faceapi.detectAllFaces(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }));
+                const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.3 }));   
                 console.log("Volti rilevati:", detections ? detections.length : 0);
                 
                 if (detections && detections.length > 0) {
