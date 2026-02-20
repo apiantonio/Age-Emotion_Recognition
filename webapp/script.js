@@ -16,8 +16,8 @@ async function initSystem() {
             executionProviders: ['wasm'],
             graphOptimizationLevel: 'all'
         };
-        sessionEmo = await ort.InferenceSession.create('./emotion.onnx', ortOptions);
-        sessionAge = await ort.InferenceSession.create('./age.onnx', ortOptions);
+        sessionEmo = await ort.InferenceSession.create('./https://github.com/apiantonio/Age-Emotion_Recognition/releases/download/1.1/emotion.onnx.onnx', ortOptions);
+        sessionAge = await ort.InferenceSession.create('https://github.com/apiantonio/Age-Emotion_Recognition/releases/download/1.1/age.onnx', ortOptions);
 
         info.innerText = "Caricamento... ⏳";
         
@@ -75,7 +75,6 @@ async function processFrame() {
 
             if (detections && detections.length > 0) {
                 for (const detection of detections) {
-                    // Face-api restituisce un oggetto "box" già comodissimo
                     const box = detection.box;
                     
                     let padX = box.width * 0.2;

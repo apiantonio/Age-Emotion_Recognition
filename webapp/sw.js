@@ -7,8 +7,8 @@ const ASSETS_TO_CACHE = [
     './manifest.json',
     './icon-192.png',
     './icon-512.png',
-    './emotion.onnx',
-    './age.onnx'
+    // './emotion.onnx',
+    // './age.onnx'
 ];
 
 self.addEventListener('install', (event) => {
