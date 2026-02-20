@@ -124,10 +124,13 @@ pip install opencv-python facenet-pytorch pandas numpy matplotlib seaborn scikit
 
 ### 4. Download Pre-Trained Weights
 
-Model checkpoints (`.pth` files) are hosted in the **GitHub Releases** section to comply with Git file size limits.
+Due to Git file size limits, model weights are hosted externally. The required files depend on the environment you intend to run.
 
-1. Navigate to the [Releases page](https://www.google.com/search?q=../../releases/latest) of this repository.
-2. Download the pre-trained model weights located under the "Assets" section.
+#### A. Desktop / Local PyTorch Inference (`.pth` weights)
+The standard PyTorch checkpoints are hosted in the **GitHub Releases** section.
+
+1. Navigate to the [Releases page](../../releases/latest) of this repository.
+2. Download the pre-trained `.pth` model weights located under the "Assets" section.
 3. Place the downloaded files in the appropriate directories within `checkpoints/`. The structure must reflect the paths defined in the `MODELS_CONFIG` dictionary inside `demo.py`:
 ```text
 checkpoints/
@@ -136,8 +139,12 @@ checkpoints/
 └── age_best/
     └── best_model.pth
 ```
+#### B. Web Application Inference (.onnx weights)
+For the client-side WebAssembly execution, the models have been exported to the ONNX format.
 
+GitHub Releases: The .onnx files are archived alongside the .pth files in the GitHub Releases for reference.
 
+Hugging Face (Active CDN): To bypass browser CORS policies and ensure reliable global delivery, the web application actively fetches the ONNX weights hosted on a dedicated Hugging Face dataset. No manual download is required to run the live PWA, as the JavaScript pipeline handles the remote fetching automatically.
 
 ---
 
