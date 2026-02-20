@@ -12,9 +12,7 @@ import os
 import sys
 from src.config import *
 
-# ==========================================
-# 4.2: FREEZING/UNFREEZING UTILITIES
-# ==========================================
+
 class BackboneController:
     """
     Gestisce il congelamento/scongelamento progressivo della backbone
@@ -51,7 +49,7 @@ class BackboneController:
         if epoch < freeze_epochs:
             if BackboneController._current_stage != "frozen":
                 BackboneController.set_trainable(model, False)
-                print(f"❄️  [Epoch {epoch+1}] Backbone FROZEN (Training Head Only)")
+                print(f"[Epoch {epoch+1}] Backbone FROZEN (Training Head Only)")
                 BackboneController._current_stage = "frozen"
 
         # FASE 2: UNFREEZE PARZIALE (Ultimi 33% circa - High Level)
@@ -68,7 +66,7 @@ class BackboneController:
                     if i >= start_idx:
                         param.requires_grad = True
 
-                print(f"🔥 [Epoch {epoch+1}] Unfreezing Top Layers (High-Level Features ~33%)")
+                print(f"[Epoch {epoch+1}] Unfreezing Top Layers (High-Level Features ~33%)")
                 BackboneController._current_stage = "partial_high"
 
         # FASE 3: UNFREEZE MEDIO (Ultimi 66% circa - Mid Level)
@@ -81,14 +79,14 @@ class BackboneController:
                     if i >= start_idx:
                         param.requires_grad = True
                         
-                print(f"🔥 [Epoch {epoch+1}] Unfreezing Mid Layers (Mid-Level Features ~66%)")
+                print(f"[Epoch {epoch+1}] Unfreezing Mid Layers (Mid-Level Features ~66%)")
                 BackboneController._current_stage = "partial_mid"
 
         # FASE 4: FULL UNFREEZE
         else:
             if BackboneController._current_stage != "unfrozen":
                 BackboneController.set_trainable(model, True)
-                print(f"🔥🔥 [Epoch {epoch+1}] Backbone FULLY UNFROZEN (Fine-Tuning All Layers)")
+                print(f"[Epoch {epoch+1}] Backbone FULLY UNFROZEN (Fine-Tuning All Layers)")
                 BackboneController._current_stage = "unfrozen"
 
 
@@ -158,7 +156,7 @@ class MetricsTracker:
 
         if save_path:
             plt.savefig(save_path, dpi=150, bbox_inches='tight')
-            print(f"📊 Plot salvato in: {save_path}")
+            print(f"Plot salvato in: {save_path}")
 
         plt.show()
 
@@ -173,7 +171,7 @@ class MetricsTracker:
         }
         with open(filepath, 'w') as f:
             json.dump(metrics_dict, f, indent=2)
-        print(f"💾 Metriche salvate in: {filepath}")
+        print(f"Metriche salvate in: {filepath}")
 
 
 class EarlyStopping:
@@ -194,10 +192,10 @@ class EarlyStopping:
             self.best_score = score
         elif score < self.best_score + self.min_delta:
             self.counter += 1
-            print(f"⚠️  EarlyStopping Counter: {self.counter}/{self.patience}")
+            print(f"EarlyStopping Counter: {self.counter}/{self.patience}")
             if self.counter >= self.patience:
                 self.early_stop = True
-                print(f"🛑 EARLY STOPPING attivato!")
+                print(f"EARLY STOPPING attivato!")
         else:
             self.best_score = score
             self.counter = 0
@@ -241,7 +239,7 @@ class Trainer:
         self.scheduler_type = getattr(config, 'scheduler', 'onecycle').lower()
 
         if self.scheduler_type == 'onecycle':
-            print("📅 Scheduler selezionato: OneCycleLR")
+            print("Scheduler selezionato: OneCycleLR")
             self.scheduler = optim.lr_scheduler.OneCycleLR(
                 self.optimizer,
                 max_lr=config.learning_rate,
@@ -252,7 +250,7 @@ class Trainer:
                 final_div_factor=1000.0
             )
         elif self.scheduler_type == 'plateau':
-            print("📅 Scheduler selezionato: ReduceLROnPlateau")
+            print("Scheduler selezionato: ReduceLROnPlateau")
             self.scheduler = optim.lr_scheduler.ReduceLROnPlateau(
                 self.optimizer,
                 mode=self.metric_mode,
@@ -284,15 +282,15 @@ class Trainer:
         if is_best:
             best_path = self.config.save_dir / 'best_model.pth'
             torch.save(state, best_path)
-            print(f"💾 Checkpoint salvato: {filename} (Best: {is_best})")
+            print(f"Checkpoint salvato: {filename} (Best: {is_best})")
 
     def load_checkpoint(self, checkpoint_path):
         """Carica un checkpoint per riprendere il training"""
         if not os.path.exists(checkpoint_path):
-            print(f"⚠️ Checkpoint non trovato in: {checkpoint_path}")
+            print(f"Checkpoint non trovato in: {checkpoint_path}")
             return False
 
-        print(f"🔄 Caricamento checkpoint da: {checkpoint_path}")
+        print(f"Caricamento checkpoint da: {checkpoint_path}")
         checkpoint = torch.load(checkpoint_path, map_location=self.device)
 
         self.model.load_state_dict(checkpoint['model_state_dict'])
@@ -310,7 +308,7 @@ class Trainer:
 
     def train_epoch(self, epoch):
         print(f"\n{'='*70}")
-        print(f"🚀 INIZIO EPOCH {epoch+1} [TRAIN]")
+        print(f"INIZIO EPOCH {epoch+1} [TRAIN]")
         sys.stdout.flush()
 
         self.model.train()
@@ -397,7 +395,7 @@ class Trainer:
 
     def validate(self, epoch):
         print(f"\n{'='*70}")
-        print(f"🔍 INIZIO VALIDAZIONE [EPOCH {epoch+1}]")
+        print(f"INIZIO VALIDAZIONE [EPOCH {epoch+1}]")
         sys.stdout.flush()
 
         self.model.eval()
@@ -473,7 +471,7 @@ class Trainer:
             self.metrics_tracker.update(t_loss, v_loss, t_met, v_met, self.optimizer.param_groups[0]['lr'])
 
             summary = f"Epoch {epoch+1}/{self.config.num_epochs} | Train Loss: {t_loss:.4f} {self.metric_name}: {t_met:.4f} | Val Loss: {v_loss:.4f} {self.metric_name}: {v_met:.4f}"
-            print(f"\n📈 {summary}")
+            print(f"\n{summary}")
             sys.stdout.flush()
 
             if self.metric_mode == 'max':
@@ -483,14 +481,14 @@ class Trainer:
 
             if is_best:
                 self.best_val_metric = v_met
-                print(f"💎 New Best Metric: {self.best_val_metric:.4f}")
+                print(f"New Best Metric: {self.best_val_metric:.4f}")
                 sys.stdout.flush()
 
             self.save_checkpoint(epoch, v_met, is_best=is_best, filename='last_checkpoint.pth')
 
             self.early_stopping(v_met)
             if self.early_stopping.early_stop:
-                print("\n🛑 Early Stopping attivato.")
+                print("\nEarly Stopping attivato.")
                 sys.stdout.flush()
                 break
 
@@ -521,7 +519,7 @@ def train_model(model, task, train_loader, val_loader,
     for key, value in config_kwargs.items():
         if hasattr(config, key):
             setattr(config, key, value)
-            print(f"⚙️ Config Override: {key} = {value}")
+            print(f"Config Override: {key} = {value}")
 
     model = model.to(config.device)
 
@@ -542,6 +540,6 @@ def train_model(model, task, train_loader, val_loader,
     try:
         trainer.train()
     except KeyboardInterrupt:
-        print("\n⚠️ Training interrotto manualmente dall'utente.")
+        print("\nTraining interrotto manualmente dall'utente.")
 
     return trainer

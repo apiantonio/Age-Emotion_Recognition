@@ -10,9 +10,7 @@ from sklearn.utils.class_weight import compute_class_weight
 from src.config import *
 from PIL import Image
 
-# ==========================================
-# 1. TRASFORMAZIONI OTTIMIZZATE
-# ==========================================
+# Trasformazioni
 data_transforms = {
     'train': transforms.Compose([
         transforms.Resize(RESIZE_SIZE),
@@ -33,9 +31,7 @@ data_transforms = {
     ]),
 }
 
-# ==========================================
-# 2. DATASETS
-# ==========================================
+# Datasets
 class BaseDataset(Dataset):
     def load_image(self, path):
         try:
@@ -77,7 +73,7 @@ class AgeDataset(BaseDataset):
             image = self.transform(image)
         return image, age, weight
 
-
+# Funzioni per Caricamento Modelli e Dataloaders
 def process_emotion_data(root_dir):
     """
     Gestisce il dataset Emozioni.
@@ -156,6 +152,7 @@ def process_emotion_data(root_dir):
 
     return train_df, val_df, weights_tensor, class_to_idx
 
+# Funzione per Caricare Modelli e Trasformazioni
 def process_age_data(root_dir):
     print(f"Scansione Dataset Età in: {root_dir}")
     
