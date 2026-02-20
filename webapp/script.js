@@ -16,8 +16,8 @@ async function initSystem() {
             executionProviders: ['wasm'],
             graphOptimizationLevel: 'all'
         };
-        sessionEmo = await ort.InferenceSession.create('https://github.com/apiantonio/Age-Emotion_Recognition/releases/download/1.1/emotion.onnx', ortOptions);
-        sessionAge = await ort.InferenceSession.create('https://github.com/apiantonio/Age-Emotion_Recognition/releases/download/1.1/age.onnx', ortOptions);
+        sessionEmo = await ort.InferenceSession.create('https://huggingface.co/datasets/apiantonio/facesight-models/resolve/main/emotion.onnx?download=true', ortOptions);
+        sessionAge = await ort.InferenceSession.create('https://huggingface.co/datasets/apiantonio/facesight-models/resolve/main/age.onnx?download=true', ortOptions);
 
         info.innerText = "Caricamento... ⏳";
         
