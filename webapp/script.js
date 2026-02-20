@@ -8,20 +8,20 @@ let sessionEmo, sessionAge;
 
 let isProcessing = false; 
 let lastProcessTime = 0;
-const INFERENCE_INTERVAL = 0;
+let dynamicInterval = 0; // Base ms
+const MIN_INTERVAL = 0;  // Velocità massima per telefoni top di gamma (30+ FPS)
+const MAX_INTERVAL = 1000; // Lentezza massima per telefoni di fascia bassa (1 FPS)
 
 async function initSystem() {
     try {
         info.innerText = "Caricamento... ⏳";
         
         const ortOptions = { 
-            executionProviders: ['webgl', 'wasm'],
+            executionProviders: ['wasm'], // ['webgl', 'wasm'] per provare WebGL prima di WASM
             graphOptimizationLevel: 'all'
         };
         sessionEmo = await ort.InferenceSession.create('https://huggingface.co/datasets/apiantonio/facesight-models/resolve/main/emotion.onnx?download=true', ortOptions);
         sessionAge = await ort.InferenceSession.create('https://huggingface.co/datasets/apiantonio/facesight-models/resolve/main/age.onnx?download=true', ortOptions);
-
-        info.innerText = "Caricamento... ⏳";
         
         await faceapi.nets.ssdMobilenetv1.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/');
         // await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/');
@@ -80,11 +80,11 @@ async function processFrame() {
     const now = Date.now();
 
     if (now - lastProcessTime >= INFERENCE_INTERVAL) {
-
         if (!isProcessing && sessionEmo && sessionAge) {
             isProcessing = true; 
             lastProcessTime = now;
-            
+            const startTime = performance.now();
+
             try {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
@@ -162,6 +162,15 @@ async function processFrame() {
             } catch (error) {
                 console.error("ONNX Inference Error:", error);
             }
+
+        const endTime = performance.now();
+        const timeTaken = endTime - startTime;
+
+        // adapts the next interval based on how long the processing took, aiming for a balance between responsiveness and performance
+        let targetInterval = timeTaken * 1.5; 
+        dynamicInterval = Math.max(MIN_INTERVAL, Math.min(MAX_INTERVAL, targetInterval));
+
+        console.log(`Compute time: ${timeTaken.toFixed(0)}ms | Next interval: ${dynamicInterval.toFixed(0)}ms`);
 
         isProcessing = false; 
     }
