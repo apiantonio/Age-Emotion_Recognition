@@ -90,7 +90,8 @@ async function processFrame() {
                 
                 // face-api
                 // const detections = await faceapi.detectAllFaces(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }));
-                const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 }));   
+                const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.6 }));   
+                console.log("Volti trovati:", detections.length);
                 
                 if (detections && detections.length > 0) {
                     for (const detection of detections) {
