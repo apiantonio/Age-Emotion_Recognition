@@ -91,12 +91,11 @@ async function processFrame() {
             const startTime = performance.now();
 
             try {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
                 // face-api
                 // const detections = await faceapi.detectAllFaces(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }));
                 const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.3 }));   
                 console.log("Volti rilevati:", detections ? detections.length : 0);
+                const facesData = [];
                 
                 if (detections && detections.length > 0) {
                     for (const detection of detections) {
@@ -109,10 +108,12 @@ async function processFrame() {
                         let w = Math.min(canvas.width - x, box.width + padX * 2);
                         let h = Math.min(canvas.height - y, box.height + padY * 2);
 
+                        /* Debug */
                         // ctx.strokeStyle = "white";
                         // ctx.lineWidth = 3;
                         // ctx.strokeRect(x, y, w, h);
-
+                        
+                        ctx.lineWidth = 3;
                         tmpCtx.clearRect(0, 0, 384, 384);
                         tmpCtx.drawImage(video, x, y, w, h, 0, 0, 384, 384);
 
@@ -144,26 +145,35 @@ async function processFrame() {
                         if (emotion === 'Sad')      color = '#0040ff'; 
                         if (emotion === 'Fear')     color = '#ff8000'; 
 
-                        ctx.strokeStyle = color;
-                        ctx.strokeRect(x, y, w, h);
-
-                        const text = `${emotion} | Età: ${ageVal.toFixed(1)}`;
-                        ctx.font = 'bold 22px Arial';
-                        const textWidth = ctx.measureText(text).width;
-
-                        ctx.save();
-                        ctx.scale(-1, 1); 
-
-                        const textX = -(x + w); 
-                        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-                        ctx.fillRect(textX, y - 32, textWidth + 10, 32);
-                        
-                        ctx.fillStyle = color;
-                        ctx.fillText(text, textX + 5, y - 8);
-
-                        ctx.restore(); 
+                        facesData.push({ x, y, w, h, emotion, ageVal, color });
                     }
                 }
+
+                // Clear canvas and draw results
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                for (const face of facesData) {
+                    ctx.strokeStyle = face.color;
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(face.x, face.y, face.w, face.h);
+
+                    const text = `${face.emotion} | Età: ${face.ageVal.toFixed(1)}`;
+                    ctx.font = 'bold 22px Arial';
+                    const textWidth = ctx.measureText(text).width;
+
+                    ctx.save();
+                    ctx.scale(-1, 1); 
+
+                    const textX = -(face.x + face.w); 
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                    ctx.fillRect(textX, face.y - 32, textWidth + 10, 32);
+                    
+                    ctx.fillStyle = face.color;
+                    ctx.fillText(text, textX + 5, face.y - 8);
+
+                    ctx.restore(); 
+                }
+
             } catch (error) {
                 console.error("ONNX Inference Error:", error);
             }
