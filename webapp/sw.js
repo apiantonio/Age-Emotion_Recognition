@@ -1,4 +1,4 @@
-const CACHE_NAME = 'facesight-cache-v9';
+const CACHE_NAME = 'facesight-cache-v10';
 
 const ASSETS_TO_CACHE = [
     './',
@@ -40,7 +40,7 @@ self.addEventListener('fetch', (event) => {
     if (!event.request.url.startsWith('http')) {
         return;
     }
-    
+
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
             if (cachedResponse) {

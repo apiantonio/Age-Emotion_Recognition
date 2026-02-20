@@ -8,7 +8,7 @@ let sessionEmo, sessionAge;
 
 let isProcessing = false; 
 let lastProcessTime = 0;
-const INFERENCE_INTERVAL = 150;
+const INFERENCE_INTERVAL = 0;
 
 async function initSystem() {
     try {
