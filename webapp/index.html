@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FaceSight</title>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#111111">
+    <link rel="apple-touch-icon" href="icon-512.png">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎭</text></svg>">
+
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
+
+    <style>
+        body { margin: 0; background: #111; color: white; font-family: sans-serif; text-align: center; overflow: hidden; }
+        .container { position: relative; display: inline-block; margin-top: 20px; }
+        video, canvas { border-radius: 10px; transform: scaleX(-1); max-width: 100vw; max-height: 85vh; }
+        canvas { position: absolute; top: 0; left: 0; }
+        #info { margin-top: 15px; font-size: 16px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2>FaceSight Mobile</h2>
+    <div class="container">
+        <video id="webcam" autoplay playsinline muted></video>
+        <canvas id="overlay"></canvas>
+    </div>
+    
+    <div id="info">Inizializzazione... ⏳</div>
+
+    <script src="script.js"></script>
+</body>
+</html>

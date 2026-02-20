@@ -19,7 +19,7 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 WEBCAM_ID = 0
 FRAME_WIDTH = 1080
 FRAME_HEIGHT = 720
-STABILITY_FACTOR = 0.01  # (0.1 molto stabile, 0.5 medio)
+STABILITY_FACTOR = 0.1  # (0.1 molto stabile, 0.5 medio)
 FRAME_SKIP = 2 # processa 1 frame ogni skip+1 (es. 4 = processa 1 frame ogni 5)
 MIN_FACE_SIZE = 80
 USE_FP16 = True
