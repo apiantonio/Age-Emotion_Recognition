@@ -116,10 +116,8 @@ async function processFrame() {
                         const emoTensor = preprocess(emoCtx.getImageData(0,0,224,224), 224, emoArray);
                         const ageTensor = preprocess(tmpCtx.getImageData(0,0,384,384), 384, ageArray);
 
-                    const [outEmo, outAge] = await Promise.all([
-                            sessionEmo.run({ input: emoTensor }),
-                            sessionAge.run({ input: ageTensor })
-                        ]);
+                        const outEmo = await sessionEmo.run({ input: emoTensor });
+                        const outAge = await sessionAge.run({ input: ageTensor });
 
                         const logits = outEmo.output.data;
                         const maxLogit = Math.max(...logits);
