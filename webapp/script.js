@@ -14,6 +14,11 @@ const MAX_INTERVAL = 1000; // Lentezza massima per telefoni di fascia bassa (1 F
 
 async function initSystem() {
     try {
+        if (navigator.gpu) {
+            console.log("WebGPU detected, using it for ONNX Runtime. This should provide better performance on supported devices.");
+        } else {
+            console.warn("WebGPU not supported, using fallback to WebAssembly. Performance may be reduced on some devices.");
+        }
         info.innerText = "Caricamento... ⏳";
         
         // cores optimized for mobile devices
