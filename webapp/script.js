@@ -21,9 +21,10 @@ async function initSystem() {
         ort.env.wasm.numThreads = Math.min(numCores, 4);
         
         const ortOptions = { 
-            executionProviders: ['webgl', 'wasm'], // provare WebGL prima di WASM
+            executionProviders: ['webgpu', 'wasm'], // provare WebGL prima di WASM
             graphOptimizationLevel: 'all'
         };
+        
         sessionEmo = await ort.InferenceSession.create('https://huggingface.co/datasets/apiantonio/facesight-models/resolve/main/emotion.onnx?download=true', ortOptions);
         sessionAge = await ort.InferenceSession.create('https://huggingface.co/datasets/apiantonio/facesight-models/resolve/main/age.onnx?download=true', ortOptions);
         
