@@ -7,13 +7,15 @@ const EMO_LABELS = ['Angry', 'Disgust', 'Fear', 'Happy', 'Neutral', 'Sad', 'Surp
 let sessionEmo, sessionAge;
 
 let isProcessing = false; 
+let lastProcessTime = 0;
+const INFERENCE_INTERVAL = 150;
 
 async function initSystem() {
     try {
         info.innerText = "Caricamento... ⏳";
         
         const ortOptions = { 
-            executionProviders: ['wasm'],
+            executionProviders: ['webgl', 'wasm'],
             graphOptimizationLevel: 'all'
         };
         sessionEmo = await ort.InferenceSession.create('https://huggingface.co/datasets/apiantonio/facesight-models/resolve/main/emotion.onnx?download=true', ortOptions);
@@ -21,8 +23,9 @@ async function initSystem() {
 
         info.innerText = "Caricamento... ⏳";
         
-        await faceapi.nets.ssdMobilenetv1.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/');
-
+        // await faceapi.nets.ssdMobilenetv1.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/');
+        await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/');
+        
         info.innerText = "✅ Sistema pronto!";
         startWebcam();
     } catch (e) {
@@ -48,9 +51,11 @@ async function startWebcam() {
     }
 }
 
+const emoArray = new Float32Array(3 * 224 * 224);
+const ageArray = new Float32Array(3 * 384 * 384);
+
 function preprocess(imgData, targetSize) {
-    const float32Data = new Float32Array(3 * targetSize * targetSize);
-    const mean = [0.485, 0.456, 0.406];
+const mean = [0.485, 0.456, 0.406];
     const std = [0.229, 0.224, 0.225];
     let dataIndex = 0;
     
@@ -62,17 +67,28 @@ function preprocess(imgData, targetSize) {
     return new ort.Tensor('float32', float32Data, [1, 3, targetSize, targetSize]);
 }
 
+const tmpCanvas = document.createElement('canvas');
+tmpCanvas.width = 384; tmpCanvas.height = 384;
+const tmpCtx = tmpCanvas.getContext('2d', { willReadFrequently: true });
+
+const emoCanvas = document.createElement('canvas');
+emoCanvas.width = 224; emoCanvas.height = 224;
+const emoCtx = emoCanvas.getContext('2d', { willReadFrequently: true });
+
 async function processFrame() {
-    if (!isProcessing && sessionEmo && sessionAge) {
-        
+    const now = Date.now();
+
+    if (now - lastProcessTime >= INFERENCE_INTERVAL) {
         isProcessing = true; 
+        lastProcessTime = now;
         
         try {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
             // face-api
-            const detections = await faceapi.detectAllFaces(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }));
-
+            // const detections = await faceapi.detectAllFaces(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }));
+            const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 }));   
+            
             if (detections && detections.length > 0) {
                 for (const detection of detections) {
                     const box = detection.box;
@@ -88,20 +104,19 @@ async function processFrame() {
                     ctx.lineWidth = 3;
                     ctx.strokeRect(x, y, w, h);
 
-                    const tmpCanvas = document.createElement('canvas');
-                    tmpCanvas.width = 384; tmpCanvas.height = 384;
-                    const tmpCtx = tmpCanvas.getContext('2d', { willReadFrequently: true });
+                    tmpCtx.clearRect(0, 0, 384, 384);
                     tmpCtx.drawImage(video, x, y, w, h, 0, 0, 384, 384);
 
-                    const emoCanvas = document.createElement('canvas');
-                    emoCanvas.width = 224; emoCanvas.height = 224;
-                    emoCanvas.getContext('2d').drawImage(tmpCanvas, 0, 0, 384, 384, 0, 0, 224, 224);
+                    emoCtx.clearRect(0, 0, 224, 224);
+                    emoCtx.drawImage(tmpCanvas, 0, 0, 384, 384, 0, 0, 224, 224);
                     
-                    const emoTensor = preprocess(emoCanvas.getContext('2d').getImageData(0,0,224,224), 224);
-                    const ageTensor = preprocess(tmpCtx.getImageData(0,0,384,384), 384);
+                    const emoTensor = preprocessOttimizzato(emoCtx.getImageData(0,0,224,224), 224, emoArray);
+                    const ageTensor = preprocessOttimizzato(tmpCtx.getImageData(0,0,384,384), 384, ageArray);
 
-                    const outEmo = await sessionEmo.run({ input: emoTensor });
-                    const outAge = await sessionAge.run({ input: ageTensor });
+                   const [outEmo, outAge] = await Promise.all([
+                        sessionEmo.run({ input: emoTensor }),
+                        sessionAge.run({ input: ageTensor })
+                    ]);
 
                     const logits = outEmo.output.data;
                     const maxLogit = Math.max(...logits);
@@ -114,13 +129,13 @@ async function processFrame() {
                     let ageVal = Math.max(1, Math.min(100, outAge.output.data[0]));
 
                     let color = '#00FF00'; 
-                    if (emotion === 'Neutral') color = '#FFFF00'; 
-                    if (emotion === 'Disgust') color = '#800080'; 
-                    if (emotion === 'Happy') color = '#00FF00'; 
-                    if (emotion === 'Angry') color = '#FF0000'; 
+                    if (emotion === 'Neutral')  color = '#FFFF00'; 
+                    if (emotion === 'Disgust')  color = '#800080'; 
+                    if (emotion === 'Happy')    color = '#00FF00'; 
+                    if (emotion === 'Angry')    color = '#FF0000'; 
                     if (emotion === 'Surprise') color = '#00FFFF'; 
-                    if (emotion === 'Sad') color = '#0040ff'; 
-                    if (emotion === 'Fear') color = '#ff8000'; 
+                    if (emotion === 'Sad')      color = '#0040ff'; 
+                    if (emotion === 'Fear')     color = '#ff8000'; 
 
                     ctx.strokeStyle = color;
                     ctx.strokeRect(x, y, w, h);
