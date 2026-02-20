@@ -79,7 +79,7 @@ const emoCtx = emoCanvas.getContext('2d', { willReadFrequently: true });
 async function processFrame() {
     const now = Date.now();
 
-    if (now - lastProcessTime >= INFERENCE_INTERVAL) {
+    if (now - lastProcessTime >= dynamicInterval) {
         if (!isProcessing && sessionEmo && sessionAge) {
             isProcessing = true; 
             lastProcessTime = now;
