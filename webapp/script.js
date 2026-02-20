@@ -23,8 +23,8 @@ async function initSystem() {
 
         info.innerText = "Caricamento... ⏳";
         
-        // await faceapi.nets.ssdMobilenetv1.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/');
-        await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/');
+        await faceapi.nets.ssdMobilenetv1.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/');
+        // await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/');
         
         info.innerText = "✅ Sistema pronto!";
         startWebcam();
@@ -89,9 +89,9 @@ async function processFrame() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
                 // face-api
-                // const detections = await faceapi.detectAllFaces(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }));
-                const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.6 }));   
-                console.log("Volti trovati:", detections.length);
+                const detections = await faceapi.detectAllFaces(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }));
+                // const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.6 }));   
+                console.log("Volti rilevati:", detections ? detections.length : 0);
                 
                 if (detections && detections.length > 0) {
                     for (const detection of detections) {

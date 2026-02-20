@@ -36,6 +36,11 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+    // IGNORA le richieste delle estensioni di Chrome per evitare crash
+    if (!event.request.url.startsWith('http')) {
+        return;
+    }
+    
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
             if (cachedResponse) {
