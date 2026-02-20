@@ -12,6 +12,7 @@ const ASSETS_TO_CACHE = [
 ];
 
 self.addEventListener('install', (event) => {
+    self.skipWaiting();
     console.log('[Service Worker] Installazione in corso...');
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
