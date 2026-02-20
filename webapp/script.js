@@ -24,7 +24,7 @@ async function initSystem() {
             executionProviders: ['webgpu', 'wasm'], // provare WebGL prima di WASM
             graphOptimizationLevel: 'all'
         };
-        
+
         sessionEmo = await ort.InferenceSession.create('https://huggingface.co/datasets/apiantonio/facesight-models/resolve/main/emotion.onnx?download=true', ortOptions);
         sessionAge = await ort.InferenceSession.create('https://huggingface.co/datasets/apiantonio/facesight-models/resolve/main/age.onnx?download=true', ortOptions);
         
@@ -109,9 +109,9 @@ async function processFrame() {
                         let w = Math.min(canvas.width - x, box.width + padX * 2);
                         let h = Math.min(canvas.height - y, box.height + padY * 2);
 
-                        ctx.strokeStyle = "white";
-                        ctx.lineWidth = 3;
-                        ctx.strokeRect(x, y, w, h);
+                        // ctx.strokeStyle = "white";
+                        // ctx.lineWidth = 3;
+                        // ctx.strokeRect(x, y, w, h);
 
                         tmpCtx.clearRect(0, 0, 384, 384);
                         tmpCtx.drawImage(video, x, y, w, h, 0, 0, 384, 384);
