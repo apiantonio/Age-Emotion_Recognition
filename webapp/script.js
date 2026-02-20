@@ -54,8 +54,9 @@ async function startWebcam() {
 const emoArray = new Float32Array(3 * 224 * 224);
 const ageArray = new Float32Array(3 * 384 * 384);
 
-function preprocess(imgData, targetSize) {
-const mean = [0.485, 0.456, 0.406];
+// Preprocess function: normalizza e riorganizza i dati in formato CHW
+function preprocess(imgData, targetSize, float32Data) {
+    const mean = [0.485, 0.456, 0.406];
     const std = [0.229, 0.224, 0.225];
     let dataIndex = 0;
     
@@ -79,90 +80,93 @@ async function processFrame() {
     const now = Date.now();
 
     if (now - lastProcessTime >= INFERENCE_INTERVAL) {
-        isProcessing = true; 
-        lastProcessTime = now;
-        
-        try {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (!isProcessing && sessionEmo && sessionAge) {
+            isProcessing = true; 
+            lastProcessTime = now;
             
-            // face-api
-            // const detections = await faceapi.detectAllFaces(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }));
-            const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 }));   
-            
-            if (detections && detections.length > 0) {
-                for (const detection of detections) {
-                    const box = detection.box;
-                    
-                    let padX = box.width * 0.2;
-                    let padY = box.height * 0.2;
-                    let x = Math.max(0, box.x - padX);
-                    let y = Math.max(0, box.y - padY);
-                    let w = Math.min(canvas.width - x, box.width + padX * 2);
-                    let h = Math.min(canvas.height - y, box.height + padY * 2);
+            try {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // face-api
+                // const detections = await faceapi.detectAllFaces(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }));
+                const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 }));   
+                
+                if (detections && detections.length > 0) {
+                    for (const detection of detections) {
+                        const box = detection.box;
+                        
+                        let padX = box.width * 0.2;
+                        let padY = box.height * 0.2;
+                        let x = Math.max(0, box.x - padX);
+                        let y = Math.max(0, box.y - padY);
+                        let w = Math.min(canvas.width - x, box.width + padX * 2);
+                        let h = Math.min(canvas.height - y, box.height + padY * 2);
 
-                    ctx.strokeStyle = "white";
-                    ctx.lineWidth = 3;
-                    ctx.strokeRect(x, y, w, h);
+                        ctx.strokeStyle = "white";
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(x, y, w, h);
 
-                    tmpCtx.clearRect(0, 0, 384, 384);
-                    tmpCtx.drawImage(video, x, y, w, h, 0, 0, 384, 384);
+                        tmpCtx.clearRect(0, 0, 384, 384);
+                        tmpCtx.drawImage(video, x, y, w, h, 0, 0, 384, 384);
 
-                    emoCtx.clearRect(0, 0, 224, 224);
-                    emoCtx.drawImage(tmpCanvas, 0, 0, 384, 384, 0, 0, 224, 224);
-                    
-                    const emoTensor = preprocessOttimizzato(emoCtx.getImageData(0,0,224,224), 224, emoArray);
-                    const ageTensor = preprocessOttimizzato(tmpCtx.getImageData(0,0,384,384), 384, ageArray);
+                        emoCtx.clearRect(0, 0, 224, 224);
+                        emoCtx.drawImage(tmpCanvas, 0, 0, 384, 384, 0, 0, 224, 224);
+                        
+                        const emoTensor = preprocess(emoCtx.getImageData(0,0,224,224), 224, emoArray);
+                        const ageTensor = preprocess(tmpCtx.getImageData(0,0,384,384), 384, ageArray);
 
-                   const [outEmo, outAge] = await Promise.all([
-                        sessionEmo.run({ input: emoTensor }),
-                        sessionAge.run({ input: ageTensor })
-                    ]);
+                    const [outEmo, outAge] = await Promise.all([
+                            sessionEmo.run({ input: emoTensor }),
+                            sessionAge.run({ input: ageTensor })
+                        ]);
 
-                    const logits = outEmo.output.data;
-                    const maxLogit = Math.max(...logits);
-                    const expLogits = Array.from(logits).map(val => Math.exp(val - maxLogit));
-                    const sumExp = expLogits.reduce((a, b) => a + b);
-                    const probs = expLogits.map(val => val / sumExp);
-                    const maxIndex = probs.indexOf(Math.max(...probs));
-                    const emotion = EMO_LABELS[maxIndex];
+                        const logits = outEmo.output.data;
+                        const maxLogit = Math.max(...logits);
+                        const expLogits = Array.from(logits).map(val => Math.exp(val - maxLogit));
+                        const sumExp = expLogits.reduce((a, b) => a + b);
+                        const probs = expLogits.map(val => val / sumExp);
+                        const maxIndex = probs.indexOf(Math.max(...probs));
+                        const emotion = EMO_LABELS[maxIndex];
 
-                    let ageVal = Math.max(1, Math.min(100, outAge.output.data[0]));
+                        let ageVal = Math.max(1, Math.min(100, outAge.output.data[0]));
 
-                    let color = '#00FF00'; 
-                    if (emotion === 'Neutral')  color = '#FFFF00'; 
-                    if (emotion === 'Disgust')  color = '#800080'; 
-                    if (emotion === 'Happy')    color = '#00FF00'; 
-                    if (emotion === 'Angry')    color = '#FF0000'; 
-                    if (emotion === 'Surprise') color = '#00FFFF'; 
-                    if (emotion === 'Sad')      color = '#0040ff'; 
-                    if (emotion === 'Fear')     color = '#ff8000'; 
+                        let color = '#00FF00'; 
+                        if (emotion === 'Neutral')  color = '#FFFF00'; 
+                        if (emotion === 'Disgust')  color = '#800080'; 
+                        if (emotion === 'Happy')    color = '#00FF00'; 
+                        if (emotion === 'Angry')    color = '#FF0000'; 
+                        if (emotion === 'Surprise') color = '#00FFFF'; 
+                        if (emotion === 'Sad')      color = '#0040ff'; 
+                        if (emotion === 'Fear')     color = '#ff8000'; 
 
-                    ctx.strokeStyle = color;
-                    ctx.strokeRect(x, y, w, h);
+                        ctx.strokeStyle = color;
+                        ctx.strokeRect(x, y, w, h);
 
-                    const text = `${emotion} | Età: ${ageVal.toFixed(1)}`;
-                    ctx.font = 'bold 22px Arial';
-                    const textWidth = ctx.measureText(text).width;
+                        const text = `${emotion} | Età: ${ageVal.toFixed(1)}`;
+                        ctx.font = 'bold 22px Arial';
+                        const textWidth = ctx.measureText(text).width;
 
-                    ctx.save();
-                    ctx.scale(-1, 1); 
+                        ctx.save();
+                        ctx.scale(-1, 1); 
 
-                    const textX = -(x + w); 
-                    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-                    ctx.fillRect(textX, y - 32, textWidth + 10, 32);
-                    
-                    ctx.fillStyle = color;
-                    ctx.fillText(text, textX + 5, y - 8);
+                        const textX = -(x + w); 
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                        ctx.fillRect(textX, y - 32, textWidth + 10, 32);
+                        
+                        ctx.fillStyle = color;
+                        ctx.fillText(text, textX + 5, y - 8);
 
-                    ctx.restore(); 
+                        ctx.restore(); 
+                    }
                 }
+            } catch (error) {
+                console.error("ONNX Inference Error:", error);
             }
-        } catch (error) {
-            console.error("ONNX Inference Error:", error);
-        }
 
         isProcessing = false; 
     }
+}
 
     requestAnimationFrame(processFrame);
 }
