@@ -1,3 +1,18 @@
+// False browser environment setup for Face-API and ONNX Runtime in a Web Worker
+self.window = self;
+self.document = {
+    createElement: (type) => {
+        if (type === 'canvas' || type === 'img') {
+            return new OffscreenCanvas(1, 1);
+        }
+        return {};
+    }
+};
+self.HTMLVideoElement = class {};
+self.HTMLImageElement = class {};
+self.HTMLCanvasElement = OffscreenCanvas;
+self.CanvasRenderingContext2D = OffscreenCanvasRenderingContext2D;
+
 importScripts(
     'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js',
     'https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.all.min.js'
@@ -6,7 +21,10 @@ importScripts(
 faceapi.env.monkeyPatch({
     Canvas: OffscreenCanvas,
     Image: OffscreenCanvas,
-    ImageData: ImageData
+    ImageData: ImageData,
+    Video: class {},
+    createCanvasElement: () => new OffscreenCanvas(1, 1),
+    createImageElement: () => new OffscreenCanvas(1, 1)
 });
 
 let sessionEmo, sessionAge;
@@ -32,7 +50,7 @@ function preprocess(imageData, targetSize, targetArray) {
 
 async function initModels() {
     try {
-        postMessage({ type: 'status', msg: 'Caricamento modelli IA in background... ⏳' });
+        postMessage({ type: 'status', msg: 'Caricamento modelli AI in background... ⏳' });
         
         // Emozioni su CPU (per il modello quantizzato)
         const ortOptionsEmo = { executionProviders: ['wasm'], graphOptimizationLevel: 'all' };
