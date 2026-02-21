@@ -3,7 +3,10 @@ self.window = self;
 self.document = {
     createElement: (type) => {
         if (type === 'canvas' || type === 'img') {
-            return new OffscreenCanvas(1, 1);
+            const canvas = new OffscreenCanvas(1, 1);
+            canvas.width = canvas.width || 1;
+            canvas.height = canvas.height || 1;
+            return canvas;
         }
         return {};
     }
@@ -23,8 +26,16 @@ faceapi.env.monkeyPatch({
     Image: OffscreenCanvas,
     ImageData: ImageData,
     Video: class {},
-    createCanvasElement: () => new OffscreenCanvas(1, 1),
-    createImageElement: () => new OffscreenCanvas(1, 1)
+    createCanvasElement: () => {
+        const c = new OffscreenCanvas(1, 1);
+        c.width = 1; c.height = 1;
+        return c;
+    },
+    createImageElement: () => {
+        const c = new OffscreenCanvas(1, 1);
+        c.width = 1; c.height = 1;
+        return c;
+    }
 });
 
 let sessionEmo, sessionAge;
@@ -83,18 +94,20 @@ self.onmessage = async (e) => {
     } else if (e.data.type === 'process' && isReady) {
         const { imageData, width, height } = e.data;
         
-        // Disegna l'immagine ricevuta su un canvas invisibile per Face-API
-        const canvas = new OffscreenCanvas(width, height);
-        const ctx = canvas.getContext('2d');
-        ctx.putImageData(imageData, 0, 0);
-        
         const imgTensor = faceapi.tf.browser.fromPixels(imageData);
-        const detections = await faceapi.detectAllFaces(imgTensor, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.3 }));
+        const detections = await faceapi.detectAllFaces(imgTensor, new faceapi.TinyFaceDetectorOptions({ 
+            inputSize: 416, scoreThreshold: 0.3 
+        }));
         imgTensor.dispose();
-        
+
         const results = [];
         
         if (detections && detections.length > 0) {
+            // Disegna l'immagine ricevuta su un canvas invisibile per Face-API
+            const canvas = new OffscreenCanvas(width, height);
+            const ctx = canvas.getContext('2d');
+            ctx.putImageData(imageData, 0, 0);
+            
             const tmpCanvas = new OffscreenCanvas(384, 384);
             const tmpCtx = tmpCanvas.getContext('2d');
             const emoCanvas = new OffscreenCanvas(224, 224);
