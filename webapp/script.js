@@ -11,7 +11,7 @@ let latestResults = [];
 
 // Quando l'HTML è completamente caricato
 window.onload = () => {
-    video = document.getElementById('video');
+    video = document.getElementById('webcam');
     canvas = document.getElementById('overlay');
     ctx = canvas.getContext('2d');
     info = document.getElementById('info');

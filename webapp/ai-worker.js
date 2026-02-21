@@ -50,7 +50,7 @@ function preprocess(imageData, targetSize, targetArray) {
 
 async function initModels() {
     try {
-        postMessage({ type: 'status', msg: 'Caricamento modelli AI in background... ⏳' });
+        postMessage({ type: 'status', msg: 'Caricamento... ⏳' });
 
         ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/';
         ort.env.wasm.numThreads = 1;
