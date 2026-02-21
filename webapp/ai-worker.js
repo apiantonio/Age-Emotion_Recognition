@@ -51,6 +51,9 @@ function preprocess(imageData, targetSize, targetArray) {
 async function initModels() {
     try {
         postMessage({ type: 'status', msg: 'Caricamento modelli AI in background... ⏳' });
+
+        ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/';
+        ort.env.wasm.numThreads = 1;
         
         // Emozioni su CPU (per il modello quantizzato)
         const ortOptionsEmo = { executionProviders: ['wasm'], graphOptimizationLevel: 'all' };
