@@ -87,8 +87,11 @@ self.onmessage = async (e) => {
         const canvas = new OffscreenCanvas(width, height);
         const ctx = canvas.getContext('2d');
         ctx.putImageData(imageData, 0, 0);
-
-        const detections = await faceapi.detectAllFaces(canvas, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.3 }));
+        
+        const imgTensor = faceapi.tf.browser.fromPixels(imageData);
+        const detections = await faceapi.detectAllFaces(imgTensor, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.3 }));
+        imgTensor.dispose();
+        
         const results = [];
         
         if (detections && detections.length > 0) {
