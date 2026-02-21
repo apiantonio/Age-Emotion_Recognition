@@ -24,6 +24,14 @@ window.onload = () => {
 
 async function startSystem() {
     try {
+        const gpuSupport = !!navigator.gpu;
+        console.log(`%c[Sistema] WebGPU supportata dal browser: ${gpuSupport ? 'SÌ ✅' : 'NO ❌'}`, "color: #00ff00; font-weight: bold;");
+        
+        if (gpuSupport) {
+            const adapter = await navigator.gpu.requestAdapter();
+            console.log(`[Sistema] Adapter GPU trovato: ${adapter ? adapter.name || 'Generico' : 'Nessuno'}`);
+        }
+
         worker = new Worker('ai-worker.js');
         
         worker.onmessage = (e) => {
@@ -33,6 +41,9 @@ async function startSystem() {
                 info.innerText = "✅ Sistema pronto!";
                 startWebcam();
             } else if (e.data.type === 'results') {
+                const now = performance.now();
+                const dynamicInterval = now - lastProcessingStep;
+                console.log(`%c[AI Worker] Risultati ricevuti. Latenza totale: ${dynamicInterval.toFixed(2)}ms`, "color: #00ffff;");
                 latestResults = e.data.data; // Aggiorniamo i rettangoli
                 isWorkerBusy = false;       
             } else if (e.data.type === 'error') {
@@ -74,6 +85,7 @@ async function startWebcam() {
 function drawLoop() {
     if (!isWorkerBusy && video.readyState === video.HAVE_ENOUGH_DATA) {
         isWorkerBusy = true;
+        lastProcessingStep = performance.now();
         
         hiddenCtx.drawImage(video, 0, 0, hiddenCanvas.width, hiddenCanvas.height);
         const imageData = hiddenCtx.getImageData(0, 0, hiddenCanvas.width, hiddenCanvas.height);

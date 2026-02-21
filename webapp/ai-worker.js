@@ -107,7 +107,7 @@ self.onmessage = async (e) => {
             const canvas = new OffscreenCanvas(width, height);
             const ctx = canvas.getContext('2d');
             ctx.putImageData(imageData, 0, 0);
-            
+
             const tmpCanvas = new OffscreenCanvas(384, 384);
             const tmpCtx = tmpCanvas.getContext('2d');
             const emoCanvas = new OffscreenCanvas(224, 224);
