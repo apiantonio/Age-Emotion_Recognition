@@ -9,8 +9,8 @@ let sessionEmo, sessionAge;
 let isProcessing = false; 
 let lastProcessTime = 0;
 let dynamicInterval = 0; // Base ms
-const MIN_INTERVAL = 0;  // Velocità massima per telefoni top di gamma (30+ FPS)
-const MAX_INTERVAL = 1000; // Lentezza massima per telefoni di fascia bassa (1 FPS)
+const MIN_INTERVAL = 200;  // Velocità massima per telefoni top di gamma (30+ FPS)
+const MAX_INTERVAL = 10000; // Lentezza massima per telefoni di fascia bassa (1 FPS)
 
 async function initSystem() {
     try {
@@ -30,9 +30,12 @@ async function initSystem() {
             graphOptimizationLevel: 'all'
         };
 
-        sessionEmo = await ort.InferenceSession.create('https://huggingface.co/datasets/apiantonio/facesight-models/resolve/main/emotion.onnx?download=true', ortOptions);
-        sessionAge = await ort.InferenceSession.create('https://huggingface.co/datasets/apiantonio/facesight-models/resolve/main/age.onnx?download=true', ortOptions);
-        
+        // sessionEmo = await ort.InferenceSession.create('https://huggingface.co/datasets/apiantonio/facesight-models/resolve/main/emotion.onnx?download=true', ortOptions);
+        sessionEmo = await ort.InferenceSession.create('https://huggingface.co/datasets/apiantonio/facesight-models/resolve/main/emotion_static_int8.onnx', ortOptions);
+
+        // sessionAge = await ort.InferenceSession.create('https://huggingface.co/datasets/apiantonio/facesight-models/resolve/main/age.onnx?download=true', ortOptions);
+        sessionAge = await ort.InferenceSession.create('https://huggingface.co/datasets/apiantonio/facesight-models/resolve/main/age_static_int8.onnx', ortOptions);
+
         // await faceapi.nets.ssdMobilenetv1.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/');
         await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/');
         
