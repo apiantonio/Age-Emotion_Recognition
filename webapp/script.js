@@ -1,15 +1,26 @@
-const video = document.getElementById('video');
-const canvas = document.getElementById('overlay');
-const ctx = canvas.getContext('2d');
-const info = document.getElementById('info');
+let video;
+let canvas;
+let ctx;
+let info;
+let hiddenCanvas;
+let hiddenCtx;
 
 let worker;
 let isWorkerBusy = false;
-let latestResults = []; // Qui salva gli ultimi dati ricevuti dal worker
+let latestResults = []; 
 
-// Canvas nascosto per "fotografare" la webcam e inviarla al worker
-const hiddenCanvas = document.createElement('canvas');
-const hiddenCtx = hiddenCanvas.getContext('2d', { willReadFrequently: true });
+// Quando l'HTML è completamente caricato
+window.onload = () => {
+    video = document.getElementById('video');
+    canvas = document.getElementById('overlay');
+    ctx = canvas.getContext('2d');
+    info = document.getElementById('info');
+
+    hiddenCanvas = document.createElement('canvas');
+    hiddenCtx = hiddenCanvas.getContext('2d', { willReadFrequently: true });
+
+    startSystem();
+};
 
 async function startSystem() {
     try {
@@ -102,5 +113,3 @@ function drawLoop() {
 
     requestAnimationFrame(drawLoop);
 }
-
-window.onload = startSystem;
