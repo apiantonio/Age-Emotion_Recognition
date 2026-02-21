@@ -56,6 +56,7 @@ async function startWebcam() {
         };
     } catch (err) {
         info.innerText = "❌ Errore Webcam. Permessi negati?";
+        console.error("Dettaglio Errore Webcam:", err);
     }
 }
 
