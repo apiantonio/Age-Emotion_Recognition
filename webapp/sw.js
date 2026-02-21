@@ -1,14 +1,13 @@
-const CACHE_NAME = 'facesight-cache-v20';
+const CACHE_NAME = 'facesight-cache-v21';
 
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
     './script.js',
+    './ai-worker.js',
     './manifest.json',
     './icon-192.png',
     './icon-512.png',
-    // './emotion.onnx',
-    // './age.onnx'
 ];
 
 self.addEventListener('install', (event) => {
