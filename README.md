@@ -51,7 +51,7 @@ To facilitate immediate testing without requiring a local PyTorch environment or
 
 | Task | Library / Framework | Architecture | Execution Provider |
 | :--- | :--- | :--- | :--- |
-| **Face Detection** | `face-api.js` | SSD MobileNet V1 | WebGL / CPU |
+| **Face Detection** | `face-api.js` | [Tiny Face Detector](https://justadudewhohacks.github.io/face-api.js/docs/index.html#models-face-detection) | WebGPU / CPU |
 | **Emotion** | `onnxruntime-web` | ConvNeXt-Tiny | WASM (WebAssembly) |
 | **Age** | `onnxruntime-web` | EfficientNetV2-S | WASM (WebAssembly) |
 
