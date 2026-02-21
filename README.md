@@ -44,27 +44,29 @@ The system utilizes two state-of-the-art lightweight architectures. The followin
 
 ## Web Application (PWA) Demo
 
-To facilitate immediate testing without requiring a local PyTorch environment or GPU hardware, a **Progressive Web App (PWA)** has been implemented. The application is hosted via GitHub Pages and executes the entire computer vision pipeline directly within the browser.
+To facilitate immediate testing without requiring a local PyTorch environment or GPU hardware, a Progressive Web App (PWA) has been implemented. The application is hosted via GitHub Pages and executes the entire computer vision pipeline directly within the browser, optimized for mobile performance.
 
 * **Live Demo**: [FaceSight Web App](https://apiantonio.github.io/Age-Emotion_Recognition/)
 ### Web Models Pipeline
 
-| Task | Library / Framework | Architecture | Execution Provider |
-| :--- | :--- | :--- | :--- |
-| **Face Detection** | `face-api.js` | [Tiny Face Detector](https://justadudewhohacks.github.io/face-api.js/docs/index.html#models-face-detection) | WebGPU / CPU |
-| **Emotion** | `onnxruntime-web` | ConvNeXt-Tiny | WASM (WebAssembly) |
-| **Age** | `onnxruntime-web` | EfficientNetV2-S | WASM (WebAssembly) |
+| Task | Library / Framework | Architecture | Execution Provider | Precision |
+| :--- | :--- | :--- | :--- | :--- |
+| **Face Detection** | `face-api.js` | [Tiny Face Detector](https://justadudewhohacks.github.io/face-api.js/docs/index.html#models-face-detection) | WASM (CPU) | Float32 |
+| **Emotion** | `onnxruntime-web` | ConvNeXt-Tiny | WASM (XNNPACK) | INT8 (Quantized) |
+| **Age** | `onnxruntime-web` | EfficientNetV2-S | WebGPU / WASM | Float32 |
 
 ### Web Architecture & Limitations
 
-Deploying heavy deep learning models to web clients introduces specific hardware constraints, which this application addresses through optimized engineering:
+The web application addresses the hardware constraints of mobile devices through a high-performance, multi-threaded architecture:
 
-* **Client-Side CPU Inference**: Unlike the desktop Python pipeline which leverages asynchronous CUDA streams, the web application executes inference strictly sequentially on the user's device CPU (e.g., smartphone processors).
-* **ONNX Runtime Web**: The PyTorch `.pth` checkpoints were exported to the Open Neural Network Exchange (`.onnx`) format and run via `onnxruntime-web` utilizing the **WebAssembly (WASM)** execution provider for near-native CPU performance.
-* **Lightweight Face Detection**: The computationally expensive MTCNN algorithm was replaced with `face-api.js` (an SSD MobileNet V1 implementation) to ensure robust multi-face tracking without overwhelming mobile browsers.
-* **Adaptive Frame Synchronization**: To maintain a fluid, real-time User Experience (UX) despite the sequential CPU execution, the application employs a "Frame-Dropping" semaphore mechanism. New frames are only captured and processed once the previous inference cycle is fully complete, preventing UI blocking and event-loop saturation.
-* **Fully Offline Capable**: Configured with a dedicated Service Worker, the application caches both the UI assets and the heavy `.onnx` weights locally on the device, allowing it to function completely offline after the initial load.
-
+* **Multi-Threaded Web Worker**: To ensure a fluid User Interface at 60 FPS, the entire AI pipeline (detection, preprocessing, and inference) has been moved to a dedicated Web Worker (ai-worker.js). This prevents the main thread from freezing during complex calculations, allowing the video stream and UI animations to remain perfectly smooth.
+* **Static INT8 Quantization (Emotion)**: The Emotion Recognition model has been optimized via Static Quantization. By converting weights from Float32 to INT8, the model size was reduced by ~75% with negligible accuracy loss, significantly speeding up inference on mobile CPUs via the WASM XNNPACK backend.
+* **Hybrid Execution Strategy**: The application employs a selective execution strategy to balance speed and precision:
+    * **Emotion (INT8)**: Runs on the CPU via WASM, as integer math is highly optimized for mobile processors.
+    * **Age (Float32)**: Leverages WebGPU for massive parallelization on the device's graphics card, maintaining maximum regression accuracy without taxing the CPU.
+* **High-Resolution Age Pipeline**: Unlike the emotion task (224x224), the age estimation utilizes a 384x384 resolution to preserve fine morphological features (wrinkles, skin texture) necessary for precise estimation.
+* **Optimized Memory Management**: The pipeline utilizes Tensors directly for face detection to avoid DOM-related bottlenecks within the Worker environment and implements immediate memory disposal (.dispose()) to prevent RAM saturation during continuous real-time usage.
+* **Fully Offline Capable**: A dedicated Service Worker caches the UI assets and the .onnx model weights locally. Once the initial 100MB+ load is complete, the app functions entirely offline, behaving like a native mobile application.
 ---
 
 ## Repository Structure
