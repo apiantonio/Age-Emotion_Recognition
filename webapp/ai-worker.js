@@ -109,9 +109,9 @@ self.onmessage = async (e) => {
             ctx.putImageData(imageData, 0, 0);
 
             const tmpCanvas = new OffscreenCanvas(384, 384);
-            const tmpCtx = tmpCanvas.getContext('2d');
+            const tmpCtx = tmpCanvas.getContext('2d', { willReadFrequently: true });
             const emoCanvas = new OffscreenCanvas(224, 224);
-            const emoCtx = emoCanvas.getContext('2d');
+            const emoCtx = emoCanvas.getContext('2d', { willReadFrequently: true });
 
             for (const detection of detections) {
                 const box = detection.box;

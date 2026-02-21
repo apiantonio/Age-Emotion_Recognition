@@ -43,7 +43,7 @@ async function startSystem() {
             } else if (e.data.type === 'results') {
                 const now = performance.now();
                 const dynamicInterval = now - lastProcessingStep;
-                console.log(`%c[AI Worker] Risultati ricevuti. Latenza totale: ${dynamicInterval.toFixed(2)}ms`, "color: #00ffff;");
+                console.log(`%c[AI Worker] Latenza totale: ${dynamicInterval.toFixed(2)}ms`, "color: #00ffff;");
                 latestResults = e.data.data; // Aggiorniamo i rettangoli
                 isWorkerBusy = false;       
             } else if (e.data.type === 'error') {
