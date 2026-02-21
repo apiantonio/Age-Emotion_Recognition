@@ -26,7 +26,7 @@ async function initSystem() {
         ort.env.wasm.numThreads = Math.min(numCores, 4);
         
         const ortOptions = { 
-            executionProviders: ['webgpu', 'wasm'], // provare WebGL prima di WASM
+            executionProviders: ['wasm'], //['webgpu', 'wasm'], // provare WebGL prima di WASM, solo WASM con modelli quantizzati
             graphOptimizationLevel: 'all'
         };
 

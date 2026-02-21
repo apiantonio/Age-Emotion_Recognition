@@ -1,4 +1,4 @@
-const CACHE_NAME = 'facesight-cache-v17';
+const CACHE_NAME = 'facesight-cache-v18';
 
 const ASSETS_TO_CACHE = [
     './',
